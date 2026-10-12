@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A playable side-scrolling model of how a homing pigeon may combine navigation cues over New York City.">
+  <title>Flight Lab — A Pigeon Navigation Model</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-mode="familiar">
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Flight Lab home">
+      <span class="brand-mark" aria-hidden="true">
+        <span class="brand-wing"></span>
+      </span>
+      <span>
+        <strong>Flight Lab</strong>
+        <small>Pigeon navigation model</small>
+      </span>
+    </a>
+    <a class="record-link" href="thinking.md">Read the research record <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-label"><span></span> Computational thinking experiment 01</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Fly the<br><em>evidence</em> home.</h1>
+        </div>
+        <div class="hero-copy">
+          <p>Steer a trained homing pigeon across a stylized New York City. Fly through the cues it may use, then compare what changes in unfamiliar territory.</p>
+          <div class="scope-note">
+            <strong>This is a playable model.</strong>
+            <span>The cue gates and score make the idea visible; they are not literal pigeon behavior.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="experiment" aria-labelledby="experiment-title">
+      <div class="experiment-topbar">
+        <div>
+          <p class="micro-label">Change one variable</p>
+          <h2 id="experiment-title">Release-area familiarity</h2>
+        </div>
+
+        <div class="mode-switch" role="radiogroup" aria-label="Choose release-area familiarity">
+          <button class="mode-button is-active" type="button" role="radio" aria-checked="true" data-mode="familiar">
+            <span class="mode-index">A</span>
+            Familiar
+          </button>
+          <button class="mode-button" type="button" role="radio" aria-checked="false" data-mode="unfamiliar">
+            <span class="mode-index">B</span>
+            Unfamiliar
+          </button>
+        </div>
+
+        <p class="mode-question" id="mode-question">What changes when landmarks and a remembered route are available?</p>
+      </div>
+
+      <div class="flight-console">
+        <div class="hud" aria-label="Flight information">
+          <div class="hud-block hud-destination">
+            <span class="hud-label">Destination</span>
+            <strong>Rooftop loft · NYC</strong>
+          </div>
+
+          <div class="hud-block hud-progress">
+            <div class="hud-row">
+              <span class="hud-label">Route progress</span>
+              <strong id="progress-value">0%</strong>
+            </div>
+            <div class="meter-track"><span id="progress-bar"></span></div>
+          </div>
+
+          <div class="hud-block hud-cues">
+            <div class="hud-row">
+              <span class="hud-label">Model cue meter</span>
+              <strong id="cue-count">0 / 5</strong>
+            </div>
+            <div class="meter-track cue-track"><span id="cue-bar"></span></div>
+          </div>
+
+          <div class="hud-block hud-status">
+            <span class="status-light" id="status-light"></span>
+            <strong id="flight-status" role="status" aria-live="polite">Awaiting release</strong>
+          </div>
+        </div>
+
+        <div class="flight-stage" id="flight-stage">
+          <canvas id="flight-canvas" tabindex="0" aria-label="Interactive side-scrolling pigeon flight. Use the up and down arrow keys or W and S to steer through navigation cue gates."></canvas>
+
+          <div class="scanlines" aria-hidden="true"></div>
+
+          <div class="start-overlay" id="start-overlay">
+            <div class="overlay-orbit" aria-hidden="true"><span></span></div>
+            <p class="micro-label">Flight briefing</p>
+            <h3>Find the familiar<br>rooftop loft.</h3>
+            <p id="briefing-copy">This release area is familiar. Look for landmarks, route memory, and compass cues.</p>
+            <div class="control-hint">
+              <span><kbd>↑</kbd><kbd>↓</kbd> or <kbd>W</kbd><kbd>S</kbd></span>
+              <span>Click or drag inside the sky</span>
+            </div>
+            <button class="launch-button" id="launch-button" type="button">
+              Release pigeon
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+
+          <div class="finish-overlay" id="finish-overlay" hidden>
+            <p class="micro-label">Home reached</p>
+            <h3>Loft located.</h3>
+            <p id="finish-copy">You flew through 0 of 5 model cues.</p>
+            <div class="finish-actions">
+              <button class="launch-button" id="fly-again-button" type="button">Fly again</button>
+              <button class="compare-button" id="compare-button" type="button">Try unfamiliar area</button>
+            </div>
+          </div>
+
+          <div class="touch-controls" aria-label="Touch flight controls">
+            <button class="steer-button" id="steer-up" type="button" aria-label="Steer pigeon upward">↑</button>
+            <button class="steer-button" id="steer-down" type="button" aria-label="Steer pigeon downward">↓</button>
+          </div>
+
+          <div class="assumption-flag">Illustrative game space</div>
+        </div>
+
+        <div class="cue-dock">
+          <div class="cue-icon" id="cue-icon" aria-hidden="true">◎</div>
+          <div class="cue-copy">
+            <div class="cue-meta">
+              <span id="cue-position">Next cue · 01</span>
+              <span class="evidence-pill" id="cue-pill">Evidence-supported</span>
+            </div>
+            <h3 id="cue-title">Visual landmark</h3>
+            <p id="cue-description">Recognizable features can help guide pigeons through familiar areas.</p>
+          </div>
+          <div class="event-log" aria-label="Recent flight events">
+            <p class="micro-label">Flight log</p>
+            <ul id="event-list" aria-live="polite">
+              <li><time>00:00</time><span>Route loaded</span></li>
+              <li><time>—</time><span>Waiting at release point</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="meaning" aria-labelledby="meaning-title">
+      <div class="section-heading">
+        <p class="micro-label">How to read the experience</p>
+        <h2 id="meaning-title">The game is the assumption.<br>The cues are the investigation.</h2>
+      </div>
+
+      <div class="meaning-grid">
+        <article class="meaning-card evidence-card">
+          <div class="card-number">01</div>
+          <div class="card-rule"><span></span> Evidence in our record</div>
+          <h3>Navigation can combine inputs.</h3>
+          <p>Landmarks, route memory, smell, the sun, magnetic information, and sometimes flockmates may contribute.</p>
+        </article>
+
+        <article class="meaning-card model-card">
+          <div class="card-number">02</div>
+          <div class="card-rule"><span></span> Invented for interaction</div>
+          <h3>You collect cues by flying through rings.</h3>
+          <p>Real pigeons do not collect floating symbols. The rings, meter, order, and skyline turn a complex process into a playable system.</p>
+        </article>
+
+        <article class="meaning-card uncertain-card">
+          <div class="card-number">03</div>
+          <div class="card-rule"><span></span> Uncertain · left out</div>
+          <h3>Not every proposed sense is active.</h3>
+          <p>Infrared vision, polarized light, and infrasound are not game cues because our notes mark their evidence as limited or mixed.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="algorithm" aria-labelledby="algorithm-title">
+      <div class="section-heading compact-heading">
+        <p class="micro-label">Decomposition</p>
+        <h2 id="algorithm-title">A four-step navigation algorithm</h2>
+      </div>
+
+      <ol class="algorithm-track">
+        <li>
+          <span class="algorithm-number">01</span>
+          <div>
+            <h3>Estimate position</h3>
+            <p>What information is available here?</p>
+          </div>
+        </li>
+        <li>
+          <span class="algorithm-number">02</span>
+          <div>
+            <h3>Select a heading</h3>
+            <p>Which direction should lead home?</p>
+          </div>
+        </li>
+        <li>
+          <span class="algorithm-number">03</span>
+          <div>
+            <h3>Check and correct</h3>
+            <p>Do the available cues still agree?</p>
+          </div>
+        </li>
+        <li>
+          <span class="algorithm-number">04</span>
+          <div>
+            <h3>Recognize home</h3>
+            <p>Has the familiar loft been reached?</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>
+    <div>
+      <strong>Flight Lab</strong>
+      <p>A classroom model built from our investigation record.</p>
+    </div>
+    <p><strong>Scope:</strong> how a trained pigeon returns after release—not why pigeons leave home.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

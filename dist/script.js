@@ -604,37 +604,28 @@ function drawPigeon(time) {
 }
 
 function drawSketchPigeon(time) {
-  const frameDuration = running ? 115 : 520;
-  const frameIndex = running ? Math.floor(time / frameDuration) % pigeonFlightFrames.length : 0;
+  const flapDuration = 520;
+  const flapProgress = running ? (time % flapDuration) / flapDuration : 0;
+  let frameIndex = 0;
+
+  if (running && flapProgress < 0.22) frameIndex = 1;
+  else if (running && flapProgress < 0.4) frameIndex = 0;
+  else if (running && flapProgress < 0.66) frameIndex = 3;
+
   const pigeonFrame = pigeonFlightFrames[frameIndex];
   if (!pigeonFrame.complete || pigeonFrame.naturalWidth === 0) return;
 
   const x = width * PLAYER_X_RATIO;
   const verticalVelocity = pigeonY - previousY;
-  const rotation = Math.max(-0.2, Math.min(0.2, verticalVelocity * 0.045));
-  const wingPhase = (time / frameDuration) * (Math.PI / 2);
-  const float = Math.sin(wingPhase) * (running ? 3.5 : 1.8);
-  const breathe = 1 + Math.sin(wingPhase) * 0.015;
-  const spriteWidth = Math.min(148, width * 0.25);
+  const rotation = Math.max(-0.14, Math.min(0.14, verticalVelocity * 0.035));
+  const wingPhase = flapProgress * Math.PI * 2;
+  const float = Math.sin(wingPhase) * (running ? 1.4 : 0.8);
+  const spriteWidth = Math.min(122, width * 0.2);
   const spriteHeight = spriteWidth * (pigeonFrame.naturalHeight / pigeonFrame.naturalWidth);
 
   context.save();
   context.translate(x, pigeonY + float);
   context.rotate(rotation);
-
-  if (running) {
-    context.strokeStyle = "rgba(231, 239, 102, 0.5)";
-    context.lineWidth = 2;
-    context.lineCap = "round";
-    [0, 1, 2].forEach((line) => {
-      const length = 20 + line * 8 + Math.sin(wingPhase + line) * 3;
-      const y = -18 + line * 17;
-      context.beginPath();
-      context.moveTo(-spriteWidth * 0.46, y);
-      context.lineTo(-spriteWidth * 0.46 - length, y);
-      context.stroke();
-    });
-  }
 
   const halo = context.createRadialGradient(0, 2, 16, 0, 2, spriteWidth * 0.62);
   halo.addColorStop(0, "rgba(255, 253, 246, 0.2)");
@@ -645,7 +636,7 @@ function drawSketchPigeon(time) {
   context.fill();
 
   // The source sketch faces left, so mirror it to travel toward the loft.
-  context.scale(-1, breathe);
+  context.scale(-1, 1);
   context.drawImage(
     pigeonFrame,
     -spriteWidth / 2,

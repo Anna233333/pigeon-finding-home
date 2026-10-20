@@ -618,16 +618,13 @@ function drawSketchPigeon(time) {
   const x = width * PLAYER_X_RATIO;
   const verticalVelocity = pigeonY - previousY;
   const rotation = Math.max(-0.14, Math.min(0.14, verticalVelocity * 0.035));
-  const wingPhase = flapProgress * Math.PI * 2;
-  const forwardLean = running ? 0.26 : 0.1;
-  const flapPitch = running ? Math.sin(wingPhase - 0.45) * 0.012 : 0;
-  const float = Math.sin(wingPhase) * (running ? 1.4 : 0.8);
+  const forwardLean = running ? 0.34 : 0.12;
   const spriteWidth = Math.min(96, width * 0.16);
   const spriteHeight = spriteWidth * (pigeonFrame.naturalHeight / pigeonFrame.naturalWidth);
 
   context.save();
-  context.translate(x, pigeonY + float);
-  context.rotate(forwardLean + rotation + flapPitch);
+  context.translate(x, pigeonY);
+  context.rotate(forwardLean + rotation);
 
   const halo = context.createRadialGradient(0, 2, 16, 0, 2, spriteWidth * 0.62);
   halo.addColorStop(0, "rgba(255, 253, 246, 0.2)");

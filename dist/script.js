@@ -619,7 +619,7 @@ function drawSketchPigeon(time) {
   const verticalVelocity = pigeonY - previousY;
   const rotation = Math.max(-0.14, Math.min(0.14, verticalVelocity * 0.035));
   const wingPhase = flapProgress * Math.PI * 2;
-  const forwardLean = running ? 0.18 : 0.08;
+  const forwardLean = running ? 0.26 : 0.1;
   const flapPitch = running ? Math.sin(wingPhase - 0.45) * 0.012 : 0;
   const float = Math.sin(wingPhase) * (running ? 1.4 : 0.8);
   const spriteWidth = Math.min(108, width * 0.18);

@@ -23,6 +23,10 @@ const finishCopy = document.querySelector("#finish-copy");
 const steerUp = document.querySelector("#steer-up");
 const steerDown = document.querySelector("#steer-down");
 
+const pigeonSketch = new Image();
+pigeonSketch.decoding = "async";
+pigeonSketch.src = "assets/pigeon-postal-sketch.png";
+
 const WORLD_LENGTH = 3100;
 const FLIGHT_SPEED = 158;
 const PLAYER_X_RATIO = 0.19;
@@ -591,6 +595,41 @@ function drawPigeon(time) {
   context.restore();
 }
 
+function drawSketchPigeon(time) {
+  if (!pigeonSketch.complete || pigeonSketch.naturalWidth === 0) return;
+
+  const x = width * PLAYER_X_RATIO;
+  const verticalVelocity = pigeonY - previousY;
+  const rotation = Math.max(-0.2, Math.min(0.2, verticalVelocity * 0.045));
+  const float = Math.sin(time * (running ? 0.009 : 0.004)) * 2.5;
+  const breathe = 1 + Math.sin(time * 0.008) * 0.012;
+  const spriteWidth = Math.min(148, width * 0.25);
+  const spriteHeight = spriteWidth * (pigeonSketch.naturalHeight / pigeonSketch.naturalWidth);
+
+  context.save();
+  context.translate(x, pigeonY + float);
+  context.rotate(rotation);
+
+  const halo = context.createRadialGradient(0, 2, 16, 0, 2, spriteWidth * 0.62);
+  halo.addColorStop(0, "rgba(255, 253, 246, 0.2)");
+  halo.addColorStop(1, "rgba(255, 253, 246, 0)");
+  context.fillStyle = halo;
+  context.beginPath();
+  context.ellipse(0, 3, spriteWidth * 0.6, spriteHeight * 0.54, 0, 0, Math.PI * 2);
+  context.fill();
+
+  // The source sketch faces left, so mirror it to travel toward the loft.
+  context.scale(-1, breathe);
+  context.drawImage(
+    pigeonSketch,
+    -spriteWidth / 2,
+    -spriteHeight / 2,
+    spriteWidth,
+    spriteHeight
+  );
+  context.restore();
+}
+
 function draw(time) {
   context.clearRect(0, 0, width, height);
   drawSky(time);
@@ -598,7 +637,7 @@ function draw(time) {
   drawGuideLine();
   currentCues().forEach((cue, index) => drawCueGate(cue, index, time));
   drawLoft(time);
-  drawPigeon(time);
+  drawSketchPigeon(time);
 }
 
 function frame(timestamp) {

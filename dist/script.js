@@ -622,7 +622,7 @@ function drawSketchPigeon(time) {
   const forwardLean = running ? 0.26 : 0.1;
   const flapPitch = running ? Math.sin(wingPhase - 0.45) * 0.012 : 0;
   const float = Math.sin(wingPhase) * (running ? 1.4 : 0.8);
-  const spriteWidth = Math.min(108, width * 0.18);
+  const spriteWidth = Math.min(96, width * 0.16);
   const spriteHeight = spriteWidth * (pigeonFrame.naturalHeight / pigeonFrame.naturalWidth);
 
   context.save();
